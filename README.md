@@ -1,4 +1,4 @@
-# red-pencil-promotion-kata
+# Red Pencil Promotion Kata
 Ruby Kata with focus on TDD
 
 Red Pencil Code Kata
