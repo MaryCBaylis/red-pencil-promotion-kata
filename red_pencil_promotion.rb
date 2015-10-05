@@ -15,6 +15,12 @@ class RedPencilPromotion
     @discount >= MIN_DISCOUNT && @discount <= MAX_DISCOUNT
   end
 
+  def eligible_product?(product)
+    past_red_pencil_promos = product.price_modifiers.select {|mod| mod.instance_of? RedPencilPromotion}
+    past_red_pencil_promos.select {|promo| promo.ended_on || promo.start_date + runtime < Time.now - 30.days}
+    product.price_changed_on + 30.days <= Time.now
+  end
+
   def valid_runtime?
     @runtime >= 0 && @runtime <= MAX_LENGTH
   end

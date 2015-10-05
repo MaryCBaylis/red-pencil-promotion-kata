@@ -26,19 +26,16 @@ describe "Product" do
 
 
   describe "eligible_for_promo?" do
-    it "returns true if price has been stable for over 30 days" do
-      allow(Time).to receive(:now).and_return(product.price_changed_on + 31.days)
-      expect(product.eligible_for_promo?).to be true
+    let (:red_line) {RedPencilPromotion.new 30, 10}
+
+    it "returns true if product is eligible for promo" do
+      allow(red_line).to receive(:eligible_product?).and_return(true)
+      expect(product.eligible_for_promo?(red_line)).to be true
     end
 
-    it "returns true if price has been stable for exactly 30 days" do
-      allow(Time).to receive(:now).and_return(product.price_changed_on + 30.days)
-      expect(product.eligible_for_promo?).to be true
-    end
-
-    it "returns false if price has been stable for less than 30 days" do 
-      allow(Time).to receive(:now).and_return(product.price_changed_on + 1.day)
-      expect(product.eligible_for_promo?).to be false
+    it "returns false if product is not eligible for promo" do
+      allow(red_line).to receive(:eligible_product?).and_return(false)
+      expect(product.eligible_for_promo?(red_line)).to be false
     end
   end
 
@@ -49,12 +46,6 @@ describe "Product" do
     it "adds a price modifier object to product's list of price_modifier" do
       temp_product.add_price_modifier(red_pencil)
       expect(temp_product.price_modifiers.any? {|mod| mod.instance_of? RedPencilPromotion}).to be true
-    end
-
-    it "updates product's price change date" do
-      original_price_change_date = temp_product.price_changed_on
-      temp_product.add_price_modifier(red_pencil)
-      expect(temp_product.price_changed_on).not_to eq(original_price_change_date)
     end
   end
 

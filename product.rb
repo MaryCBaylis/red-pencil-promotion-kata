@@ -10,13 +10,12 @@ class Product
     @price_modifiers = []
   end
 
-  def eligible_for_promo?
-    @price_changed_on + 30.days <= Time.now
+  def eligible_for_promo?(modifier)
+    modifier.eligible_product?(self)
   end
 
   def add_price_modifier(modifier)
     @price_modifiers << modifier.dup
-    update_price_changed_on
   end
 
   def update_price_changed_on
@@ -37,6 +36,6 @@ class Product
   def price=(new_price)
     @price_modifiers.map {|mod| mod.react_to_price_change @price, new_price}
     @price = new_price
-    @price_changed_on = Time.now
+    update_price_changed_on
   end
 end

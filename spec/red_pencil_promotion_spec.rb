@@ -120,4 +120,34 @@ describe "RedPencilPromotion" do
       expect(red_pencil.ended_on).not_to eq(original_ended_on)
     end
   end
+
+  describe "eligible_product?" do
+    let (:red_pencil) {RedPencilPromotion.new 30, 10}
+    let (:product) {Product.new "stuff", 1.00}
+
+    it "returns true if price has been stable for over 30 days" do
+      allow(Time).to receive(:now).and_return(product.price_changed_on + 31.days)
+      expect(red_pencil.eligible_product?(product)).to be true
+    end
+
+    it "returns true if price has been stable for exactly 30 days" do
+      allow(Time).to receive(:now).and_return(product.price_changed_on + 30.days)
+      expect(red_pencil.eligible_product?(product)).to be true
+    end
+
+    it "returns false if price has been stable for less than 30 days" do 
+      allow(Time).to receive(:now).and_return(product.price_changed_on + 1.day)
+      expect(red_pencil.eligible_product?(product)).to be false
+    end
+
+    it "returns false if red line promotion has been in effect in the last 30 days" do
+      product.add_price_modifier(red_pencil)
+      expect(red_pencil.eligible_product?(product)).to be false
+    end
+
+    it "returns true if no red line promotion has been in effect in the last 30 days and product is otherwise elgibile" do
+      allow(Time).to receive(:now).and_return(product.price_changed_on + 41.days)
+      expect(red_pencil.eligible_product?(product)).to be true
+    end
+  end
 end
